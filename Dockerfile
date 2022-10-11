@@ -4,6 +4,6 @@ WORKDIR /opt/app
 
 COPY . .
 
-RUN go build -o /opt/app/metaphor-go-lite main.go
+RUN go build -o /opt/app/miller main.go
 
-CMD ["./metaphor-go-lite"]
+CMD ["./miller"]
