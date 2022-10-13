@@ -1,9 +1,9 @@
 FROM golang:1.18-alpine3.16
 
-WORKDIR /opt/app
+# WORKDIR /opt/app
 
-COPY . .
+# COPY . .
 
-RUN go build -o /opt/app/miller main.go
+# RUN go build -o /opt/app/miller main.go
 
-CMD ["./miller"]
+# CMD ["./miller"]
