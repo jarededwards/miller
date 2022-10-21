@@ -1,10 +1,10 @@
+# argo submit --generate-name="miller-release-" --serviceaccount=argo-server -p appName="miller" -p branch="main" -p ciCommitSha="1235465213ADSA5ee" -p environment="production" -p gitRepoUrl="https://github.com/your-dns-io/miller" -p shortSha="13ADSA5ee" wf/release.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   namespace: argo
 spec:
   entrypoint: main
-  serviceAccountName: argo-server
   templates:
   - name: main
     steps:
@@ -13,15 +13,6 @@ spec:
           name: cwft-local
           template: git-checkout-with-gitops
           clusterScope: true
-    - - name: publish-container
-        templateRef:
-          name: cwft-local
-          template: docker-build
-          clusterScope: true
-        arguments:
-          artifacts:
-          - name: repo-source
-            from: "{{steps.checkout.outputs.artifacts.repo-source}}"
     - - name: get-initial-chart-version
         templateRef:
           name: cwft-local
@@ -34,29 +25,33 @@ spec:
           parameters:
           - name: chartDir
             value: "charts/{{workflow.parameters.appName}}"
-    - - name: set-chart-versions
+    - - name: set-environment-version
         templateRef:
           name: cwft-local
-          template: helm-set-chart-versions
+          template: helm-set-environment-version
           clusterScope: true
         arguments:
           artifacts:
           - name: repo-source
             from: "{{steps.checkout.outputs.artifacts.repo-source}}"
           parameters:
-          - name: chartDir
-            value: "charts/{{workflow.parameters.appName}}"
+          - name: fullChartPath
+            value: "components/{{workflow.parameters.environment}}/{{workflow.parameters.appName}}/Chart.yaml"
           - name: chartVersion
             value: "{{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
-    - - name: publish-helm-chart
+          - name: environment
+            value: "{{workflow.parameters.environment}}"
+    - - name: commit
         templateRef:
           name: cwft-local
-          template: helm-publish-chart
+          template: git-commit
           clusterScope: true
         arguments:
           artifacts:
-          - name: repo-source
-            from: "{{steps.set-chart-versions.outputs.artifacts.repo-source}}"
+            - name: repo-source
+              from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
           parameters:
-          - name: chartDir
-            value: "charts/{{workflow.parameters.appName}}"
+            - name: gitRepoDir
+              value: "/src/gitops"
+            - name: commitMessage
+              value: "setting {{workflow.parameters.appName}} {{workflow.parameters.environment}} to chart version {{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"

@@ -46,46 +46,47 @@ jobs:
           -p dockerFilePath="Dockerfile" \
           -p gitOwner="${GITHUB_REPOSITORY_OWNER_PART}" \
           -p gitServerUrl="${GITHUB_SERVER_URL}" \
-          -p gitRepoUrl="" \
+          -p gitopsRepoUrl="" \
           -p shortSha="${GITHUB_SHA_SHORT}" \
           --wait --log
     - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  # development:
-  #   needs: publish
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Setup Runner for Argo
-  #       run: |
-  #           cd $HOME
-  #           echo "Install argo"
-  #           # Download the binary
-  #           curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${ARGO_VERSION}/argo-linux-amd64.gz
-  #           # Unzip
-  #           gunzip argo-linux-amd64.gz
-  #           # Make binary executable
-  #           chmod +x argo-linux-amd64
-  #           # Move binary to path
-  #           sudo mv ./argo-linux-amd64 /usr/local/bin/argo
-  #           # Test installation
-  #           argo version --short
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
-  #     - name: development
-  #       run: |
-  #         echo "commit sha $GITHUB_SHA"
-  #         argo version --short
-  #         argo submit .argo/deploy.yaml \
-  #           --generate-name="${CI_PROJECT_NAME}-development-${GITHUB_SHA:7}" \
-  #           --serviceaccount=argo \
-  #           -p appName="${CI_PROJECT_NAME}" \
-  #           -p ciCommitSha="${GITHUB_SHA}" \
-  #           -p branch="${GITHUB_REF_NAME}" \
-  #           -p environment="development" \
-  #           -p gitRepoUrl="${GITREPO_URL}" \
-  #           -p shortSha="${GITHUB_SHA:7}" \
-  #           --wait --log
-  #     - run: echo "🍏 This job's status is ${{ job.status }}."
+  development:
+    needs: publish
+    runs-on: self-hosted
+    steps:
+      - name: Setup Runner for Argo
+        run: |
+            cd $HOME
+            echo "Install argo"
+            # Download the binary
+            curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${ARGO_VERSION}/argo-linux-amd64.gz
+            # Unzip
+            gunzip argo-linux-amd64.gz
+            # Make binary executable
+            chmod +x argo-linux-amd64
+            # Move binary to path
+            sudo mv ./argo-linux-amd64 /usr/local/bin/argo
+            # Test installation
+            argo version --short
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: development
+        run: |
+          echo "commit sha $GITHUB_SHA"
+          argo version --short
+          argo submit .argo/deploy.yaml \
+            --generate-name="${GITHUB_REPOSITORY_NAME_PART}-development-${GITHUB_SHA_SHORT}" \
+            --serviceaccount=argo-server \
+            -p appName="${GITHUB_REPOSITORY_NAME_PART}" \
+            -p appRepoUrl="" \
+            -p ciCommitSha="${GITHUB_SHA}" \
+            -p branch="${GITHUB_REF_NAME}" \
+            -p environment="development" \
+            -p gitopsRepoUrl="" \
+            -p shortSha="${GITHUB_SHA_SHORT}" \
+            --wait --log
+      - run: echo "🍏 This job's status is ${{ job.status }}."
   # staging:
   #   needs: development
   #   runs-on: self-hosted
