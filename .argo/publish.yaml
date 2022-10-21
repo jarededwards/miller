@@ -22,18 +22,18 @@ spec:
           artifacts:
           - name: repo-source
             from: "{{steps.checkout.outputs.artifacts.repo-source}}"
-    # - - name: get-initial-chart-version
-    #     templateRef:
-    #       name: cwft-local
-    #       template: helm-get-chart-version
-    #       clusterScope: true
-    #     arguments:
-    #       artifacts:
-    #       - name: repo-source
-    #         from: "{{steps.checkout.outputs.artifacts.repo-source}}"
-    #       parameters:
-    #       - name: chartDir
-    #         value: "charts/{{workflow.parameters.appName}}"
+    - - name: get-initial-chart-version
+        templateRef:
+          name: cwft-local
+          template: helm-get-chart-version
+          clusterScope: true
+        arguments:
+          artifacts:
+          - name: repo-source
+            from: "{{steps.checkout.outputs.artifacts.repo-source}}"
+          parameters:
+          - name: chartDir
+            value: "charts/{{workflow.parameters.appName}}"
     # - - name: set-chart-versions
     #     templateRef:
     #       name: cwft-local
