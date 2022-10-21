@@ -111,10 +111,10 @@ spec:
           - name: repo-source
             from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
           parameters:
-          - name: appDir
-            value: "{{workflow.parameters.appDir}}"
+          - name: appName
+            value: "{{workflow.parameters.appName}}"
           - name: chartDir
-            value: "{{workflow.parameters.chartDir}}"
+            value: "charts/{{workflow.parameters.appName}}"
           - name: chartVersion
             value: "{{steps.get-initial-chart-version.outputs.result}}"
     - - name: get-published-chart-version
