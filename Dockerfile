@@ -6,4 +6,4 @@ FROM golang:1.18-alpine3.16
 
 # RUN go build -o /opt/app/miller main.go
 
-# CMD ["./miller"]
+CMD ["tail", "-f", "/dev/null"]
