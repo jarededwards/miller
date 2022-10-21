@@ -1,4 +1,3 @@
-# argo submit --generate-name="miller-release-" --serviceaccount=argo-server -p appName="miller" -p branch="main" -p ciCommitSha="1235465213ADSA5ee" -p environment="production" -p gitRepoUrl="https://github.com/your-dns-io/miller" -p shortSha="13ADSA5ee" wf/release.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
