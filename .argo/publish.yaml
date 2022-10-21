@@ -45,6 +45,8 @@ spec:
           - name: repo-source
             from: "{{steps.checkout.outputs.artifacts.repo-source}}"
           parameters:
+          - name: chartDir
+            value: "charts/{{workflow.parameters.appName}}"
           - name: chartVersion
             value: "{{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
     - - name: publish-helm-chart
