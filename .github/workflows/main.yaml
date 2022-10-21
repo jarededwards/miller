@@ -50,6 +50,7 @@ jobs:
           -p shortSha="${GITHUB_SHA_SHORT}" \
           --wait --log
     - run: echo "🍏 This job's status is ${{ job.status }}."
+
   # development:
   #   needs: publish
   #   runs-on: self-hosted
