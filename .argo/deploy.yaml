@@ -48,12 +48,12 @@ spec:
           clusterScope: true
         arguments:
           artifacts:
-            - name: repo-source
-              from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
+          - name: repo-source
+            from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
           parameters:
-            - name: appName
-              value: "gitops"
-            - name: gitRepoDir
-              value: "/src/gitops"
-            - name: commitMessage
-              value: "setting {{workflow.parameters.appName}} {{workflow.parameters.environment}} to chart version {{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
+          - name: appName
+            value: "gitops"
+          - name: gitRepoDir
+            value: "/src/gitops"
+          - name: commitMessage
+            value: "setting {{workflow.parameters.appName}} {{workflow.parameters.environment}} to chart version {{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
