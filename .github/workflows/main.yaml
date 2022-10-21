@@ -1,72 +1,52 @@
-name:  Release Main
+name:  release
 env:
   ARGO_NAMESPACE: argo
   ARGO_VERSION: v3.1.11
-# # this needs to be a template
-#   GITREPO_URL: ssh://git@github.com/your-dns-io/miller.git
-#   CI_PROJECT_NAME: miller
-
-# To confirm this logic
-# There is circular effect due to the bump of version
-# To confirm Effect
-
 on:
  push:
    branches:
-     - main
-
+   - main
 jobs:
   publish:
     runs-on: self-hosted
-    container:
-      image: argoproj/argocli:latest
+    # container:
+    #   image: argoproj/argocli:latest
     steps:
-      - name: Setup Runner for Argo
-        run: |
-            argo version --short
-      #       cd $HOME
-      #       echo "Install argo"
-      #       # Download the binary
-      #       curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${ARGO_VERSION}/argo-linux-amd64.gz
-      #       # Unzip
-      #       gunzip argo-linux-amd64.gz
-      #       # Make binary executable
-      #       chmod +x argo-linux-amd64
-      #       # Move binary to path
-      #       sudo mv ./argo-linux-amd64 /usr/local/bin/argo
-      #       # Test installation
-            
-      # - name: Check out repository code
-      #   uses: actions/checkout@v3
-      # - run: echo ${GITHUB_REPOSITORY}        
-      # - run: echo ${GITHUB_REPOSITORY#*/}
-      # - run: echo ${GITHUB_SERVER_URL:8}
-      # - run: echo ${GITREPO_URL}     
-      # - name: publish
-      #   run: |
-      #     echo "commit sha $GITHUB_SHA"
-      #     argo version --short   
-      #     argo submit .argo/publish.yaml \
-      #       --generate-name="${CI_PROJECT_NAME}-publish-${GITHUB_SHA:7}" \
-      #       --serviceaccount=argo \
-      #       -p appName="${CI_PROJECT_NAME}" \
-      #       -p ciCommitSha="${GITHUB_SHA}" \
-      #       -p branch="${GITHUB_REF_NAME}" \
-      #       -p gitRepoUrl="${GITREPO_URL}" \
-      #       -p shortSha="${GITHUB_SHA:7}" \
-      #       -p dockerFilePath="build/Dockerfile" \
-      #       --wait --log
-      #     argo submit wf/publish.yaml \
-      #       --serviceaccount=argo-server \
-      #       --generate-name="${CI_PROJECT_NAME}-publish-${GITHUB_SHA:7}" \
-      #       -p appName="miller" \
-      #       -p gitHost="github.com" \
-      #       -p gitOwner="your-dns-io" \
-      #       -p shortSha="cc156a8" \
-      #       -p ciCommitSha="cc156a8d2e7bd1a0f12e33a186366b3fbf67a263" \
-      #       --wait --log
-      #       # -p branch="mine" 
-      # - run: echo "🍏 This job's status is ${{ job.status }}."              
+    - name: Setup Runner for Argo
+      run: |
+        cd $HOME
+        echo "Install argo"
+        # Download the binary
+        curl -sLO https://github.com/argoproj/argo-workflows/releases/download/${ARGO_VERSION}/argo-linux-amd64.gz
+        # Unzip
+        gunzip argo-linux-amd64.gz
+        # Make binary executable
+        chmod +x argo-linux-amd64
+        # Move binary to path
+        sudo mv ./argo-linux-amd64 /usr/local/bin/argo
+        # Test installation
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v4
+    - run: echo ${GITHUB_REPOSITORY}
+    - run: echo ${GITHUB_REPOSITORY_NAME_PART}
+    - run: echo ${GITHUB_SERVER_URL}
+    - name: publish
+      run: |
+        echo "commit sha ${GITHUB_SHA}"
+        argo version --short
+        argo submit .argo/publish.yaml \
+          --generate-name="${GITHUB_REPOSITORY_NAME_PART}-publish-${GITHUB_SHA_SHORT}-" \
+          --serviceaccount=argo-server \
+          -p appName="${GITHUB_REPOSITORY_NAME_PART}" \
+          -p ciCommitSha="${GITHUB_SHA}" \
+          -p branch="${GITHUB_BASE_REF}" \
+          -p gitOwner="${GITHUB_REPOSITORY_OWNER_PART}" \
+          -p gitServerUrl="${GITHUB_SERVER_URL}" \
+          -p shortSha="${GITHUB_SHA_SHORT}" \
+          --wait --log
+    - run: echo "🍏 This job's status is ${{ job.status }}."
   # development:
   #   needs: publish
   #   runs-on: self-hosted
@@ -84,13 +64,13 @@ jobs:
   #           # Move binary to path
   #           sudo mv ./argo-linux-amd64 /usr/local/bin/argo
   #           # Test installation
-  #           argo version --short            
+  #           argo version --short
   #     - name: Check out repository code
-  #       uses: actions/checkout@v3            
+  #       uses: actions/checkout@v3
   #     - name: development
   #       run: |
   #         echo "commit sha $GITHUB_SHA"
-  #         argo version --short   
+  #         argo version --short
   #         argo submit .argo/deploy.yaml \
   #           --generate-name="${CI_PROJECT_NAME}-development-${GITHUB_SHA:7}" \
   #           --serviceaccount=argo \
@@ -100,8 +80,8 @@ jobs:
   #           -p environment="development" \
   #           -p gitRepoUrl="${GITREPO_URL}" \
   #           -p shortSha="${GITHUB_SHA:7}" \
-  #           --wait --log  
-  #     - run: echo "🍏 This job's status is ${{ job.status }}."              
+  #           --wait --log
+  #     - run: echo "🍏 This job's status is ${{ job.status }}."
   # staging:
   #   needs: development
   #   runs-on: self-hosted
@@ -119,13 +99,13 @@ jobs:
   #           # Move binary to path
   #           sudo mv ./argo-linux-amd64 /usr/local/bin/argo
   #           # Test installation
-  #           argo version --short            
+  #           argo version --short
   #     - name: Check out repository code
-  #       uses: actions/checkout@v3              
+  #       uses: actions/checkout@v3
   #     - name: staging
   #       run: |
   #         echo "commit sha $GITHUB_SHA"
-  #         argo version --short   
+  #         argo version --short
   #         argo submit .argo/deploy.yaml \
   #           --generate-name="${CI_PROJECT_NAME}-staging-${GITHUB_SHA:7}" \
   #           --serviceaccount=argo \
@@ -135,10 +115,10 @@ jobs:
   #           -p environment="staging" \
   #           -p gitRepoUrl="${GITREPO_URL}" \
   #           -p shortSha="${GITHUB_SHA:7}" \
-  #           --wait --log   
-  #     - run: echo "🍏 This job's status is ${{ job.status }}."              
+  #           --wait --log
+  #     - run: echo "🍏 This job's status is ${{ job.status }}."
   # release:
-  #   needs: staging  
+  #   needs: staging
   #   runs-on: self-hosted
   #   steps:
   #     - name: Setup Runner for Argo
@@ -154,13 +134,13 @@ jobs:
   #           # Move binary to path
   #           sudo mv ./argo-linux-amd64 /usr/local/bin/argo
   #           # Test installation
-  #           argo version --short            
+  #           argo version --short
   #     - name: Check out repository code
-  #       uses: actions/checkout@v3                    
+  #       uses: actions/checkout@v3
   #     - name: release
   #       run: |
   #         echo "commit sha $GITHUB_SHA"
-  #         argo version --short   
+  #         argo version --short
   #         argo submit .argo/release.yaml \
   #           --generate-name="${CI_PROJECT_NAME}-release-${GITHUB_SHA:7}" \
   #           --serviceaccount=argo \
@@ -171,5 +151,5 @@ jobs:
   #           -p gitRepoUrl="${GITREPO_URL}" \
   #           -p gitRepoPath="${GITREPO_URL}" \
   #           -p shortSha="${GITHUB_SHA:7}" \
-  #           --wait --log              
-  #     - run: echo "🍏 This job's status is ${{ job.status }}."  
+  #           --wait --log
+  #     - run: echo "🍏 This job's status is ${{ job.status }}."
