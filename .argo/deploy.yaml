@@ -16,11 +16,11 @@ spec:
       - name: chartDir
         value: charts/miller # charts/{{workflow.parameters.appName}}
       - name: ciCommitSha
-        value: "1235465213ADSA5ss" # "{{workflow.parameters.ciCommitSha}}"
+        value: "1235465213ADSA5ff" # "{{workflow.parameters.ciCommitSha}}"
       - name: imageTag
-        value: "1235465213ADSA5ss" # "{{workflow.parameters.shortSha}}"
+        value: "1235465213ADSA5ff" # "{{workflow.parameters.shortSha}}"
       - name: shortSha
-        value: "13ADSA5ss" # "{{workflow.parameters.shortSha}}"
+        value: "13ADSA5ff" # "{{workflow.parameters.shortSha}}"
       - name: branch
         value: main # "{{workflow.parameters.branch}}"
       - name: environment
