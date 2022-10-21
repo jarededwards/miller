@@ -31,7 +31,7 @@ spec:
     - - name: checkout
         templateRef:
           name: cwft-local
-          template: git-checkout
+          template: git-checkout-with-gitops
           clusterScope: true
     - - name: get-initial-chart-version
         templateRef:
