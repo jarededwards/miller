@@ -1,0 +1,94 @@
+# argo submit --generate-name="miller-release-" --serviceaccount=argo-server -p appName="miller" -p branch="main" -p ciCommitSha="1235465213ADSA5ee" -p environment="production" -p gitRepoUrl="https://github.com/your-dns-io/miller" -p shortSha="13ADSA5ee" wf/release.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  namespace: argo
+  generateName: deploy-
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+      - name: appDir
+        value: /src/miller # /src/{{workflow.parameters.appName}}
+      # - name: awsRegion
+      #   value: "{{workflow.parameters.awsRegion}}"
+      #   default: 
+      - name: chartDir
+        value: charts/miller # charts/{{workflow.parameters.appName}}
+      - name: ciCommitSha
+        value: "1235465213ADSA5ss" # "{{workflow.parameters.ciCommitSha}}"
+      - name: imageTag
+        value: "1235465213ADSA5ss" # "{{workflow.parameters.shortSha}}"
+      - name: shortSha
+        value: "13ADSA5ss" # "{{workflow.parameters.shortSha}}"
+      - name: branch
+        value: main # "{{workflow.parameters.branch}}"
+      - name: environment
+        value: staging # "{{workflow.parameters.environment}}"
+      - name: fullChartPath
+        value: "components/{{workflow.parameters.environment}}/miller/Chart.yaml"
+      - name: gitRepoUrl
+        value: "https://github.com/your-dns-io/miller.git"
+        default: "https://github.com/your-dns-io/miller.git"
+  templates:
+    - name: main
+      steps:
+        - - name: checkout
+            templateRef:
+              name: cwft-local
+              template: git-checkout
+              clusterScope: true
+            # arguments:
+            #   parameters:
+            #     - name: appDir
+            #       value: "{{workflow.parameters.appDir}}"
+            #     - name: branch
+            #       value: "{{workflow.parameters.branch}}"
+            #     - name: gitRepoUrl
+            #       value: "{{workflow.parameters.gitRepoUrl}}"
+
+        - - name: get-initial-chart-version
+            templateRef:
+              name: cwft-local
+              template: helm-get-chart-version
+              clusterScope: true
+            arguments:
+              artifacts:
+                - name: repo-source
+                  from: "{{steps.checkout.outputs.artifacts.repo-source}}"
+              parameters:
+                - name: appDir
+                  value: "{{workflow.parameters.appDir}}"
+                - name: chartDir
+                  value: "{{workflow.parameters.chartDir}}"
+
+        - - name: set-environment-version
+            templateRef:
+              name: cwft-local
+              template: helm-set-environment-version
+              clusterScope: true
+            arguments:
+              artifacts:
+                - name: repo-source
+                  from: "{{steps.checkout.outputs.artifacts.repo-source}}"
+              parameters:
+                - name: fullChartPath
+                  value: "{{workflow.parameters.fullChartPath}}"
+                - name: chartVersion
+                  value: "{{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
+                - name: environment
+                  value: "{{workflow.parameters.environment}}"
+        - - name: commit
+            templateRef:
+              name: cwft-local
+              template: git-commit
+              clusterScope: true
+            arguments:
+              artifacts:
+                - name: repo-source
+                  from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
+              parameters:
+                - name: appDir
+                  value: "/src/gitops"
+                - name: commitMessage
+                  value: setting miller {{workflow.parameters.environment}} to chart version {{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}
