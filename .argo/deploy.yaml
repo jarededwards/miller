@@ -51,6 +51,8 @@ spec:
             - name: repo-source
               from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
           parameters:
+            - name: appName
+              value: "gitops"
             - name: gitRepoDir
               value: "/src/gitops"
             - name: commitMessage
