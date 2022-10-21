@@ -8,8 +8,11 @@ spec:
   arguments:
     parameters:
       - name: appRepoUrl
+        default: ""
       - name: dockerFilePath
+        default: ""
       - name: gitRepoUrl
+        default: ""
   serviceAccountName: argo-server
   templates:
   - name: main
