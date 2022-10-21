@@ -40,10 +40,13 @@ jobs:
           --generate-name="${GITHUB_REPOSITORY_NAME_PART}-publish-${GITHUB_SHA_SHORT}-" \
           --serviceaccount=argo-server \
           -p appName="${GITHUB_REPOSITORY_NAME_PART}" \
+          -p appRepoUrl="" \
           -p ciCommitSha="${GITHUB_SHA}" \
           -p branch="${GITHUB_REF_NAME}" \
+          -p dockerFilePath="Dockerfile" \
           -p gitOwner="${GITHUB_REPOSITORY_OWNER_PART}" \
           -p gitServerUrl="${GITHUB_SERVER_URL}" \
+          -p gitRepoUrl="" \
           -p shortSha="${GITHUB_SHA_SHORT}" \
           --wait --log
     - run: echo "🍏 This job's status is ${{ job.status }}."

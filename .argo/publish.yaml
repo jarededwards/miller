@@ -5,14 +5,6 @@ metadata:
   generateName: publish-app-
 spec:
   entrypoint: main
-  arguments:
-    parameters:
-      - name: appRepoUrl
-        default: ""
-      - name: dockerFilePath
-        default: ""
-      - name: gitRepoUrl
-        default: ""
   serviceAccountName: argo-server
   templates:
   - name: main
