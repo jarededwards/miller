@@ -5,6 +5,7 @@ metadata:
   namespace: argo
 spec:
   entrypoint: main
+  serviceAccountName: argo-server
   templates:
   - name: main
     steps:
