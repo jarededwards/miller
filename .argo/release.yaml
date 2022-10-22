@@ -79,12 +79,12 @@ spec:
         arguments:
           artifacts:
           - name: repo-source
-            from: "{{steps.checkout.outputs.artifacts.repo-source}}"
+            from: "{{steps.set-chart-versions.outputs.artifacts.repo-source}}"
           parameters:
           - name: fullChartPath
             value: "components/{{workflow.parameters.environment}}/{{workflow.parameters.appName}}/Chart.yaml"
           - name: chartVersion
-            value: "{{steps.get-initial-chart-version.outputs.result}}-rc.{{workflow.parameters.shortSha}}"
+            value: "{{steps.get-initial-chart-version.outputs.result}}"
           - name: environment
             value: "{{workflow.parameters.environment}}"
     - - name: commit-production
@@ -137,7 +137,7 @@ spec:
         arguments:
           artifacts:
           - name: repo-source
-            from: "{{steps.set-environment-version.outputs.artifacts.repo-source}}"
+            from: "{{steps.increment-chart-minor.outputs.artifacts.repo-source}}"
           parameters:
           - name: repoName
             value: "{{workflow.parameters.appName}}"

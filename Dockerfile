@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.16
+FROM scratch
 
 # WORKDIR /opt/app
 
